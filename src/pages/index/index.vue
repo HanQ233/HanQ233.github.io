@@ -473,7 +473,7 @@ const SOURCE_INFO: Partial<Record<SourcePreference, SourceInfo>> = {
   },
 };
 
-const surname = ref("张");
+const surname = ref("齐");
 const selectedSourceId = ref<SourcePreference>(
   DEFAULT_SOURCE_ID as SourcePreference,
 );
@@ -483,7 +483,7 @@ const style = ref<NameStyle>("any");
 const mustText = ref(DEFAULT_MUST_TEXT);
 const looseMode = ref(false);
 const mustPosition = ref<MustPosition>("any");
-const avoidText = ref("赵钱孙\n刘强\n李建国");
+const avoidText = ref("国子\n涵煜伊惠婷航明伟丽鲁");
 const limit = ref(30);
 const randomSort = ref(true);
 
@@ -735,7 +735,7 @@ function setLimit(next: number) {
 
 function getCurrentQueryConfig(): StoredQueryConfig {
   return {
-    surname: stripNonChinese(surname.value).slice(0, 4) || "张",
+    surname: stripNonChinese(surname.value).slice(0, 4) || "齐",
     selectedSourceId: selectedSourceId.value,
     frequencyMin: frequencyMin.value,
     frequencyMax: frequencyMax.value,
