@@ -122,14 +122,9 @@ export function checkAvoidRules({
   }
 
   const avoidChars = new Set<string>();
-  const avoidPinyinWithoutTone = new Set<string>();
   for (const item of avoid) {
     for (const char of splitChars(stripNonChinese(item))) {
       avoidChars.add(char);
-      const charInfo = charDb[char];
-      if (charInfo) {
-        avoidPinyinWithoutTone.add(charInfo.pinyinWithoutTone);
-      }
     }
   }
 
@@ -141,9 +136,6 @@ export function checkAvoidRules({
     }
     if (avoidChars.has(charInfo.char)) {
       issues.push(`包含需要避开的字「${charInfo.char}」`);
-    }
-    if (avoidPinyinWithoutTone.has(charInfo.pinyinWithoutTone)) {
-      issues.push(`「${charInfo.char}」与避讳字存在同音风险`);
     }
   }
 
