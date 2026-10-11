@@ -97,33 +97,44 @@
 
 ![我的公众号](https://mirror-4-web.bookflaneur.cn/https://tvax1.sinaimg.cn/large/006GAeg6ly1ie6hym2oq1j30zk0zk0vs.jpg)
 
-
 ---
 
 # 本仓库的定制说明
 
-本 fork 基于 [YaoZeyuan/name-generator](https://github.com/YaoZeyuan/name-generator)（「好名有据」），做了以下精简：
+本仓库 fork 自 [YaoZeyuan/name-generator](https://github.com/YaoZeyuan/name-generator)（「好名有据」），做了以下精简：
 
 - **只保留「他山石」一个名字库**（60240 个候选名，源自 16.8 万条现代公开人名）
-- 删除登科录 / 古人云 / 五道口 / 财富论 四个名字库及其出处文件
-- 删除  下的全部原始语料（仅保留  站点图标）
-- 删除未被前端引用的 、、
-- 修复  中  的嵌套 bug，并把 pnpm 从 8 升到 9
+- 删除「登科录」「古人云」「五道口」「财富论」四个名字库及其出处文件
+- 删除 `resource/` 下的全部原始语料（仅保留 `resource/img` 站点图标）
+- 删除未被前端引用的 `candidate_name_db.json`、`api/database/source/`、`api/database/extracted/`
+- 修复 `.github/workflows/deploy.yml` 中 `on: push:` 的嵌套 bug，并把 pnpm 从 8 升到 9
 
 ## 如何增删名字
 
-直接编辑  —— 它是一个纯字符串数组：
+直接编辑 `api/database/candidate/sources/modern_people.candidate_names.json`，它是一个纯字符串数组，例如：
 
+    ["明远", "清和", "若水"]
 
+提交推送后 GitHub Actions 会自动重新构建并发布到 GitHub Pages（约 1 分钟）。
 
-提交推送后 GitHub Actions 会自动重新构建并发布（约 1 分钟）。两个前提：
+两个前提：
 
-1. 必须是**恰好两个汉字**；
-2. 两个字都要在 （7474 字）里，否则会被运行时丢弃。注意该字库已排除多音字（如 长/乐/朝/重/燕），含这些字的名字不会生效。
+1. 必须是**恰好两个汉字**，多字或少字都不会生效；
+2. 两个字都要在 `api/database/candidate/candidate_char_db.json`（共 7474 字）中，否则运行时会被丢弃。该字库**已排除多音字**（如 长/乐/朝/重/燕/相/行），所以含这些字的名字不会生效。
 
 ## 本地开发
 
-```bash
-npm install
-npm run dev:h5      # http://localhost:10086/
-```
+    npm install
+    npm run dev:h5        # 打开 http://localhost:10086/
+
+其他常用命令：
+
+| 命令 | 作用 |
+| --- | --- |
+| `npm run dev:h5` | 本地开发（热更新） |
+| `npm run build:h5` | 生产构建到 `dist/` |
+| `npm run query:name` | 命令行查名字 |
+
+## 在线地址
+
+https://hanq233.github.io/
