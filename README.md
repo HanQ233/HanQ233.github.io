@@ -96,3 +96,34 @@
 欢迎关注
 
 ![我的公众号](https://mirror-4-web.bookflaneur.cn/https://tvax1.sinaimg.cn/large/006GAeg6ly1ie6hym2oq1j30zk0zk0vs.jpg)
+
+
+---
+
+# 本仓库的定制说明
+
+本 fork 基于 [YaoZeyuan/name-generator](https://github.com/YaoZeyuan/name-generator)（「好名有据」），做了以下精简：
+
+- **只保留「他山石」一个名字库**（60240 个候选名，源自 16.8 万条现代公开人名）
+- 删除登科录 / 古人云 / 五道口 / 财富论 四个名字库及其出处文件
+- 删除  下的全部原始语料（仅保留  站点图标）
+- 删除未被前端引用的 、、
+- 修复  中  的嵌套 bug，并把 pnpm 从 8 升到 9
+
+## 如何增删名字
+
+直接编辑  —— 它是一个纯字符串数组：
+
+
+
+提交推送后 GitHub Actions 会自动重新构建并发布（约 1 分钟）。两个前提：
+
+1. 必须是**恰好两个汉字**；
+2. 两个字都要在 （7474 字）里，否则会被运行时丢弃。注意该字库已排除多音字（如 长/乐/朝/重/燕），含这些字的名字不会生效。
+
+## 本地开发
+
+```bash
+npm install
+npm run dev:h5      # http://localhost:10086/
+```
