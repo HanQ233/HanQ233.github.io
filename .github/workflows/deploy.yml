@@ -2,12 +2,11 @@ name: github pages
 
 on:
   push:
-    push:
-      branches:
-        - master
-      # Sequence of patterns matched against refs/tags
-      tags:
-        - "*" # Push events to matching any tags
+    branches:
+      - master
+      - main
+    tags:
+      - "*"
   workflow_dispatch:
 
 jobs:
@@ -16,6 +15,8 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
