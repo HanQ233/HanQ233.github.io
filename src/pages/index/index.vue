@@ -391,7 +391,7 @@ type StoredQueryConfig = {
 };
 
 const DATABASE_BASE = "/api/database/candidate";
-const QUERY_CONFIG_STORAGE_KEY = "name-generator:index-query-config:v2";
+const QUERY_CONFIG_STORAGE_KEY = "name-generator:index-query-config:v3";
 const FAVORITES_STORAGE_KEY = "name-generator:favorites:v1";
 const DEFAULT_MUST_TEXT = [
   "素处以默",
@@ -481,7 +481,7 @@ const frequencyMin = ref(1);
 const frequencyMax = ref(100);
 const style = ref<NameStyle>("any");
 const mustText = ref(DEFAULT_MUST_TEXT);
-const looseMode = ref(false);
+const looseMode = ref(true);
 const mustPosition = ref<MustPosition>("any");
 const avoidText = ref("国子\n涵煜伊惠婷航明伟丽鲁");
 const limit = ref(30);
