@@ -391,7 +391,7 @@ type StoredQueryConfig = {
 };
 
 const DATABASE_BASE = "/api/database/candidate";
-const QUERY_CONFIG_STORAGE_KEY = "name-generator:index-query-config:v1";
+const QUERY_CONFIG_STORAGE_KEY = "name-generator:index-query-config:v2";
 const FAVORITES_STORAGE_KEY = "name-generator:favorites:v1";
 const DEFAULT_MUST_TEXT = [
   "素处以默",
