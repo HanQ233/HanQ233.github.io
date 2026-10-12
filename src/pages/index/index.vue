@@ -483,7 +483,7 @@ const style = ref<NameStyle>("any");
 const mustText = ref(DEFAULT_MUST_TEXT);
 const looseMode = ref(true);
 const mustPosition = ref<MustPosition>("any");
-const avoidText = ref("国子\n涵煜伊惠婷航明伟丽鲁");
+const avoidText = ref("强国军\n涵煜伊惠婷航明伟丽鲁\n熙沐橙一祎\n海景锦子");
 const limit = ref(30);
 const randomSort = ref(true);
 
