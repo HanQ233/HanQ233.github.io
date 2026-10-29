@@ -179,8 +179,12 @@
           <view class="secondary-action-button" @tap="showFavorites">
             查看收藏
           </view>
-          <view class="secondary-action-button" @tap="exportCsv">
-            导出 csv
+          <view
+            class="secondary-action-button"
+            :class="{ disabled: isExporting || isSearching }"
+            @tap="exportCsv"
+          >
+            {{ isExporting ? "导出中…" : "导出 csv（全部）" }}
           </view>
           <view
             class="generate-action-button"
@@ -494,6 +498,7 @@ const sourceNameCache = new Map<string, Record<string, string[]>>();
 const results = ref<PublicResult[]>([]);
 const errorMessage = ref("");
 const isSearching = ref(false);
+const isExporting = ref(false);
 const hasSearched = ref(false);
 const hasOpenedFavorites = ref(false);
 const displayMode = ref<DisplayMode>("generated");
@@ -836,14 +841,87 @@ function getRankNumber(index: number): number {
   return (currentPage.value - 1) * limit.value + index + 1;
 }
 
-function exportCsv() {
-  if (results.value.length === 0) {
-    showToast("暂无可导出的名字");
+async function exportCsv() {
+  if (isExporting.value || isSearching.value) return;
+
+  if (displayMode.value === "favorites") {
+    if (favorites.value.length === 0) {
+      showToast("暂无可导出的名字");
+      return;
+    }
+    writeCsvFile(results.value, "收藏名字");
     return;
   }
 
+  if (!hasSearched.value || results.value.length === 0) {
+    showToast("请先生成候选名字");
+    return;
+  }
+
+  isExporting.value = true;
+  Taro.showLoading({ title: "正在整理全部候选…", mask: true });
+  try {
+    const items = await collectAllResults();
+    Taro.hideLoading();
+    if (items.length === 0) {
+      showToast("暂无可导出的名字");
+      return;
+    }
+    writeCsvFile(items, "候选名字");
+  } catch (error) {
+    Taro.hideLoading();
+    showToast(getErrorMessage(error));
+  } finally {
+    isExporting.value = false;
+  }
+}
+
+/**
+ * 按当前查询条件重新跑一次全量查询，拿到所有符合条件的候选名（不受分页 limit 限制）。
+ */
+async function collectAllResults(): Promise<PublicResult[]> {
+  const cleanedSurname = stripNonChinese(surname.value);
+  if (!cleanedSurname) throw new Error("请输入姓氏");
+  const must = looseMode.value ? [] : splitChineseChars(mustText.value);
+  if (!looseMode.value && must.length === 0) {
+    throw new Error("请填写至少一个指定字，或选择“不指定字，随便看看”");
+  }
+
+  const searchSignature = getCurrentSearchSignature();
+  if (
+    randomSort.value &&
+    randomizedSearchSignature.value === searchSignature &&
+    randomizedResults.value.length > 0
+  ) {
+    return randomizedResults.value;
+  }
+
+  const candidateDb = applyFrequencyRange(
+    await loadCandidateDb(selectedSourceId.value),
+  );
+  const loadedCharDb = await loadCharDb();
+  const query: QueryConfig = {
+    surname: cleanedSurname,
+    avoid: parseAvoidList(avoidText.value),
+    must,
+    mustPosition: mustPosition.value,
+    style: style.value,
+    sourcePreference: selectedSourceId.value,
+    limit: Math.max(1, candidateDb.length),
+  };
+  const allResults = queryNames({
+    candidateDb,
+    charDb: loadedCharDb,
+    query,
+  }).map(toPublicResult);
+
+  return randomSort.value ? shuffleResults(allResults) : allResults;
+}
+
+function writeCsvFile(items: PublicResult[], filenamePrefix: string) {
   const rows = [
     [
+      "序号",
       "姓名",
       "二字名",
       "评分",
@@ -854,7 +932,8 @@ function exportCsv() {
       "避讳说明",
       "音律说明",
     ],
-    ...results.value.map((item) => [
+    ...items.map((item, index) => [
+      String(index + 1),
       item.fullName,
       item.name,
       item.score,
@@ -866,10 +945,14 @@ function exportCsv() {
       item.phonetic,
     ]),
   ];
-  const csv = `\uFEFF${rows.map((row) => row.map(escapeCsvValue).join(",")).join("\r\n")}`;
-  const filenamePrefix =
-    displayMode.value === "favorites" ? "收藏名字" : "候选名字";
-  downloadTextFile(csv, `${filenamePrefix}_${formatDateTime(new Date())}.csv`);
+  const csv = `\uFEFF${rows
+    .map((row) => row.map(escapeCsvValue).join(","))
+    .join("\r\n")}`;
+  const downloaded = downloadTextFile(
+    csv,
+    `${filenamePrefix}_${formatDateTime(new Date())}.csv`,
+  );
+  if (downloaded) showToast(`已导出 ${items.length} 个名字`);
 }
 
 function handleReset() {
@@ -961,7 +1044,7 @@ function escapeCsvValue(value: unknown): string {
   return text;
 }
 
-function downloadTextFile(content: string, filename: string) {
+function downloadTextFile(content: string, filename: string): boolean {
   if (
     typeof window !== "undefined" &&
     typeof document !== "undefined" &&
@@ -976,10 +1059,11 @@ function downloadTextFile(content: string, filename: string) {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-    return;
+    return true;
   }
   Taro.setClipboardData({ data: content });
   showToast("已复制csv内容");
+  return false;
 }
 
 function formatDateTime(date: Date): string {
@@ -1670,6 +1754,11 @@ function getErrorMessage(error: unknown): string {
 .generate-action-button.disabled {
   background: #8fb8af;
   color: rgba(255, 255, 255, 0.86);
+}
+
+.secondary-action-button.disabled {
+  color: #a0a7a3;
+  background: #eef1ee;
 }
 
 .generate-action-text {
